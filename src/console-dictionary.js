@@ -19,7 +19,7 @@ async function getHeadWord(word) {
         const inflectionResponseResult = inflectionResponseData && inflectionResponseData.results && Array.isArray(inflectionResponseData.results) && inflectionResponseData.results[0];
         const inflectionLexicalEntry = inflectionResponseResult && inflectionResponseResult.lexicalEntries && Array.isArray(inflectionResponseResult.lexicalEntries) && inflectionResponseResult.lexicalEntries[0];
         const inflectionOf = inflectionLexicalEntry && inflectionLexicalEntry.inflectionOf && Array.isArray(inflectionLexicalEntry.inflectionOf) && inflectionLexicalEntry.inflectionOf[0];
-        const headWord = inflectionOf && inflectionOf.id;
+        const headWord = inflectionOf && inflectionOf.text;
         return headWord;
     } catch (error) {
         throw error;
@@ -27,6 +27,7 @@ async function getHeadWord(word) {
 }
 
 exports.getDefinitions = async (word) => {
+    let definitionsList = [];
     try {
         let headWord = await getHeadWord(word);
         if (headWord) {
@@ -36,12 +37,39 @@ exports.getDefinitions = async (word) => {
             const definitionLexicalEntry = definitionResponseResult && definitionResponseResult.lexicalEntries && Array.isArray(definitionResponseResult.lexicalEntries) && definitionResponseResult.lexicalEntries[0];
             const definitionEntry = definitionLexicalEntry && definitionLexicalEntry.entries && Array.isArray(definitionLexicalEntry.entries) && definitionLexicalEntry.entries[0];
             const definitionSense = definitionEntry && definitionEntry.senses && Array.isArray(definitionEntry.senses) && definitionEntry.senses[0];
-            const wordDefinition = definitionSense && definitionSense.definitions && Array.isArray(definitionSense.definitions) && definitionSense.definitions[0];
-            return wordDefinition;
+            const wordDefinitions = definitionSense && definitionSense.definitions && Array.isArray(definitionSense.definitions) && definitionSense.definitions;
+            for (const definition of wordDefinitions) {
+                definitionsList.push(definition);
+            }
+            return definitionsList;
         } else {
-            return null;
+            return [];
         }
     } catch (error) {
-        return null;
+        return [];
+    }
+};
+
+exports.getSynonyms = async (word) => {
+    let synonymsList = [];
+    try {
+        let headWord = await getHeadWord(word);
+        if (headWord) {
+            const synonymResponse = await axios.get(`/entries/${languageCode}/${headWord}/synonyms`);
+            const synonymResponseData = synonymResponse && synonymResponse.data;
+            const synonymResponseResult = synonymResponseData && synonymResponseData.results && Array.isArray(synonymResponseData.results) && synonymResponseData.results[0];
+            const synonymLexicalEntry = synonymResponseResult && synonymResponseResult.lexicalEntries && Array.isArray(synonymResponseResult.lexicalEntries) && synonymResponseResult.lexicalEntries[0];
+            const synonymEntry = synonymLexicalEntry && synonymLexicalEntry.entries && Array.isArray(synonymLexicalEntry.entries) && synonymLexicalEntry.entries[0];
+            const synonymSense = synonymEntry && synonymEntry.senses && Array.isArray(synonymEntry.senses) && synonymEntry.senses[0];
+            const wordSynonyms = synonymSense && synonymSense.synonyms && Array.isArray(synonymSense.synonyms) && synonymSense.synonyms;
+            for (const synonym of wordSynonyms) {
+                synonymsList.push(synonym && synonym.text);
+            }
+            return synonymsList;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        return [];
     }
 };

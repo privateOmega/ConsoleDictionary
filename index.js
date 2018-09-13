@@ -32,12 +32,29 @@ if (commandList.includes(command)) {
 }
 
 async function runCommand(command, word) {
+    let definitionsList, synonymsList;
     switch (command) {
         case 'def':
-            console.log(`${chalk.red('Definitions')}: ${chalk.blue(await getDefinitions(word))}`);
+            definitionsList = await getDefinitions(word);
+            if (definitionsList && Array.isArray(definitionsList) && definitionsList.length > 0) {
+                console.log(`${chalk.blue('Definitions')}:`);
+                for (const definition of definitionsList) {
+                    console.log(`   ${chalk.green(definition)}`);
+                }
+            } else {
+                console.log(`${chalk.red('No definitions found for the word')}`);
+            }
             break;
         case 'syn':
-            console.log(`${chalk.red('Synonyms')}: ${chalk.blue(await getSynonyms(word))}`);
+            synonymsList = await getSynonyms(word);
+            if (synonymsList && Array.isArray(synonymsList) && synonymsList.length > 0) {
+                console.log(`${chalk.blue('Synonyms')}:`);
+                for (const synonym of synonymsList) {
+                    console.log(`   ${chalk.green(synonym)}`);
+                }
+            } else {
+                console.log(`${chalk.red('No synonyms found for the word')}`);
+            }
             break;
         case 'ant':
             console.log(`${chalk.red('Antonyms')}: ${chalk.blue(await getAntonyms(word))}`);
@@ -65,8 +82,8 @@ async function getDetails(word) {
 }
 
 async function getDetailsForWordOfTheDay() {
-    let word = await getWordOfTheDay();
-    await getDetails(word);
+    // let word = await getWordOfTheDay();
+    // await getDetails(word);
 }
 
 async function playGame() {
