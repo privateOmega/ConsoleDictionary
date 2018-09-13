@@ -97,3 +97,27 @@ exports.getAntonyms = async (word) => {
         return [];
     }
 };
+
+exports.getExamples = async (word) => {
+    let examplesList = [];
+    try {
+        let headWord = await getHeadWord(word);
+        if (headWord) {
+            const exampleResponse = await axios.get(`/entries/${languageCode}/${headWord}`);
+            const exampleResponseData = exampleResponse && exampleResponse.data;
+            const exampleResponseResult = exampleResponseData && exampleResponseData.results && Array.isArray(exampleResponseData.results) && exampleResponseData.results[0];
+            const exampleLexicalEntry = exampleResponseResult && exampleResponseResult.lexicalEntries && Array.isArray(exampleResponseResult.lexicalEntries) && exampleResponseResult.lexicalEntries[0];
+            const exampleEntry = exampleLexicalEntry && exampleLexicalEntry.entries && Array.isArray(exampleLexicalEntry.entries) && exampleLexicalEntry.entries[0];
+            const exampleSense = exampleEntry && exampleEntry.senses && Array.isArray(exampleEntry.senses) && exampleEntry.senses[0];
+            const wordExamples = exampleSense && exampleSense.examples && Array.isArray(exampleSense.examples) && exampleSense.examples;
+            for (const example of wordExamples) {
+                examplesList.push(example && example.text);
+            }
+            return examplesList;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        return [];
+    }
+};

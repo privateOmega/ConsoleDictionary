@@ -7,12 +7,11 @@ const {
     getDefinitions,
     getSynonyms,
     getAntonyms,
-    getExamples,
-    getWordOfTheDay
+    getExamples
 } = require('./src/console-dictionary');
 
 // Define static list of dictionary commands
-const commandList = ['def', 'syn', 'ant', 'ex', 'dict', 'play'];
+const commandList = ['def', 'syn', 'ant', 'ex', 'dict'];
 
 // Extract command and word from command line arguments
 const processArguments = minimist(process.argv.slice(2));
@@ -26,13 +25,11 @@ if (commandList.includes(command)) {
     word = command || '';
     if (word) {
         getDetails(word);
-    } else {
-        getDetailsForWordOfTheDay();
     }
 }
 
 async function runCommand(command, word) {
-    let definitionsList, synonymsList, antonymsList;
+    let definitionsList, synonymsList, antonymsList, examplesList;
     switch (command) {
         case 'def':
             definitionsList = await getDefinitions(word);
@@ -68,60 +65,62 @@ async function runCommand(command, word) {
             }
             break;
         case 'ex':
-            console.log(`${chalk.red('Examples')}: ${chalk.blue(await getExamples(word))}`);
+            examplesList = await getExamples(word);
+            if (examplesList && Array.isArray(examplesList) && examplesList.length > 0) {
+                console.log(`${chalk.blue('Examples')}:`);
+                for (const example of examplesList) {
+                    console.log(`   ${chalk.green(example)}`);
+                }
+            } else {
+                console.log(`${chalk.red('No examples found for the word')}`);
+            }
             break;
         case 'dict':
             await getDetails(word);
             break;
-        case 'play':
-            playGame();
     }
 }
 
 async function getDetails(word) {
-    let definitionsList = getDefinitions(word);
-    let synonymsList = getSynonyms(word);
-    let antonymsList = getAntonyms(word);
-    let examplesList = getExamples(word);
-    console.log(`${chalk.red('Definitions')}: ${chalk.blue(await definitionsList)}`);
-    console.log(`${chalk.red('Synonyms')}: ${chalk.blue(await synonymsList)}`);
-    console.log(`${chalk.red('Antonyms')}: ${chalk.blue(await antonymsList)}`);
-    console.log(`${chalk.red('Examples')}: ${chalk.blue(await examplesList)}`);
-}
-
-async function getDetailsForWordOfTheDay() {
-    // let word = await getWordOfTheDay();
-    // await getDetails(word);
-}
-
-async function playGame() {
-    // Show definition, synonym, antonym of a random word
-    // TODO: Rewrite logic to find a random word, its synonym, antonym and definition etc
-    let randomWord = 'random';
-    let synonymsList = await getSynonyms(randomWord);
-    try {
-        let word = await prompt('Word: ');
-        if (word.localeCompare(randomWord) || synonymsList.includes(word)) {
-            console.log(`${chalk.blue('Word is correct')}`);
+    let definitionsList, synonymsList, antonymsList, examplesList;
+    definitionsList = getDefinitions(word);
+    synonymsList = getSynonyms(word);
+    antonymsList = getAntonyms(word);
+    examplesList = getExamples(word);
+    definitionsList = await definitionsList;
+    synonymsList = await synonymsList;
+    antonymsList = await antonymsList;
+    examplesList = await examplesList;
+    if (definitionsList && Array.isArray(definitionsList) && definitionsList.length > 0) {
+        console.log(`${chalk.blue('Definitions')}:`);
+        for (const definition of definitionsList) {
+            console.log(`   ${chalk.green(definition)}`);
         }
-    } catch (error) {
-        throw error;
+    } else {
+        console.log(`${chalk.red('No definitions found for the word')}`);
     }
-}
-
-function prompt(promptStatement) {
-    return new Promise((resolve, reject) => {
-        const {
-            stdin,
-            stdout
-        } = process;
-        stdin.resume();
-        stdout.write(promptStatement);
-        stdin.on('data', (data) => {
-            resolve(data.toString().trim());
-        });
-        stdin.on('error', (error) => {
-            reject(error);
-        });
-    });
+    if (synonymsList && Array.isArray(synonymsList) && synonymsList.length > 0) {
+        console.log(`${chalk.blue('Synonyms')}:`);
+        for (const synonym of synonymsList) {
+            console.log(`   ${chalk.green(synonym)}`);
+        }
+    } else {
+        console.log(`${chalk.red('No synonyms found for the word')}`);
+    }
+    if (antonymsList && Array.isArray(antonymsList) && antonymsList.length > 0) {
+        console.log(`${chalk.blue('Antonyms')}:`);
+        for (const antonym of antonymsList) {
+            console.log(`   ${chalk.green(antonym)}`);
+        }
+    } else {
+        console.log(`${chalk.red('No antonyms found for the word')}`);
+    }
+    if (examplesList && Array.isArray(examplesList) && examplesList.length > 0) {
+        console.log(`${chalk.blue('Examples')}:`);
+        for (const example of examplesList) {
+            console.log(`   ${chalk.green(example)}`);
+        }
+    } else {
+        console.log(`${chalk.red('No examples found for the word')}`);
+    }
 }
