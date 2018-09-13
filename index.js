@@ -10,6 +10,8 @@ const {
     getWordOfTheDay
 } = require('./src/console-dictionary');
 
+require('dotenv').config();
+
 // Define static list of dictionary commands
 const commandList = ['def', 'syn', 'ant', 'ex', 'dict', 'play'];
 
