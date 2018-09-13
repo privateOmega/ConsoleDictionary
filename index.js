@@ -2,6 +2,7 @@
 
 const minimist = require('minimist');
 const chalk = require('chalk');
+require('dotenv').config();
 const {
     getDefinitions,
     getSynonyms,
@@ -9,8 +10,6 @@ const {
     getExamples,
     getWordOfTheDay
 } = require('./src/console-dictionary');
-
-require('dotenv').config();
 
 // Define static list of dictionary commands
 const commandList = ['def', 'syn', 'ant', 'ex', 'dict', 'play'];
