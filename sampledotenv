@@ -1,0 +1,4 @@
+APPLICATION_ID = xxxxxxx
+APPLICATION_KEY = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+LANGUAGE_CODE = en
+API_BASE_URL = https://od-api.oxforddictionaries.com/api/v1
