@@ -32,7 +32,7 @@ if (commandList.includes(command)) {
 }
 
 async function runCommand(command, word) {
-    let definitionsList, synonymsList;
+    let definitionsList, synonymsList, antonymsList;
     switch (command) {
         case 'def':
             definitionsList = await getDefinitions(word);
@@ -57,7 +57,15 @@ async function runCommand(command, word) {
             }
             break;
         case 'ant':
-            console.log(`${chalk.red('Antonyms')}: ${chalk.blue(await getAntonyms(word))}`);
+            antonymsList = await getAntonyms(word);
+            if (antonymsList && Array.isArray(antonymsList) && antonymsList.length > 0) {
+                console.log(`${chalk.blue('Antonyms')}:`);
+                for (const antonym of antonymsList) {
+                    console.log(`   ${chalk.green(antonym)}`);
+                }
+            } else {
+                console.log(`${chalk.red('No antonyms found for the word')}`);
+            }
             break;
         case 'ex':
             console.log(`${chalk.red('Examples')}: ${chalk.blue(await getExamples(word))}`);

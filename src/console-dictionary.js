@@ -73,3 +73,27 @@ exports.getSynonyms = async (word) => {
         return [];
     }
 };
+
+exports.getAntonyms = async (word) => {
+    let antonymsList = [];
+    try {
+        let headWord = await getHeadWord(word);
+        if (headWord) {
+            const antonymResponse = await axios.get(`/entries/${languageCode}/${headWord}/antonyms`);
+            const antonymResponseData = antonymResponse && antonymResponse.data;
+            const antonymResponseResult = antonymResponseData && antonymResponseData.results && Array.isArray(antonymResponseData.results) && antonymResponseData.results[0];
+            const antonymLexicalEntry = antonymResponseResult && antonymResponseResult.lexicalEntries && Array.isArray(antonymResponseResult.lexicalEntries) && antonymResponseResult.lexicalEntries[0];
+            const antonymEntry = antonymLexicalEntry && antonymLexicalEntry.entries && Array.isArray(antonymLexicalEntry.entries) && antonymLexicalEntry.entries[0];
+            const antonymSense = antonymEntry && antonymEntry.senses && Array.isArray(antonymEntry.senses) && antonymEntry.senses[0];
+            const wordAntonyms = antonymSense && antonymSense.antonyms && Array.isArray(antonymSense.antonyms) && antonymSense.antonyms;
+            for (const antonym of wordAntonyms) {
+                antonymsList.push(antonym && antonym.text);
+            }
+            return antonymsList;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        return [];
+    }
+};
