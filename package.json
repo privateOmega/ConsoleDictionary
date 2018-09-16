@@ -1,0 +1,32 @@
+{
+  "name": "consoledict",
+  "version": "1.0.0",
+  "description": "Console Dictionary",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/privateOmega/ConsoleDictionary.git"
+  },
+  "author": "privateomega <privateomega@protonmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/privateOmega/ConsoleDictionary/issues"
+  },
+  "homepage": "https://github.com/privateOmega/ConsoleDictionary#readme",
+  "devDependencies": {
+    "eslint": "^5.5.0"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "chalk": "^2.4.1",
+    "clear": "^0.1.0",
+    "dotenv": "^6.0.0",
+    "minimist": "^1.2.0"
+  },
+  "bin": {
+    "dict": "./index.js"
+  }
+}
