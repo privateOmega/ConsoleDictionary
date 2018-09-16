@@ -9,9 +9,10 @@ const {
     getAntonyms,
     getExamples
 } = require('./src/console-dictionary');
+const randomWordList = require('./random-word-list').randomWordList;
 
 // Define static list of dictionary commands
-const commandList = ['def', 'syn', 'ant', 'ex', 'dict'];
+const commandList = ['def', 'syn', 'ant', 'ex', 'dict', 'play'];
 
 // Extract command and word from command line arguments
 const processArguments = minimist(process.argv.slice(2));
@@ -25,6 +26,8 @@ if (commandList.includes(command)) {
     word = command || '';
     if (word) {
         getDetails(word);
+    } else {
+        getDetailsForWordOfTheDay();
     }
 }
 
@@ -78,6 +81,9 @@ async function runCommand(command, word) {
         case 'dict':
             await getDetails(word);
             break;
+        case 'play':
+            await playGame();
+            break;
     }
 }
 
@@ -123,4 +129,72 @@ async function getDetails(word) {
     } else {
         console.log(`${chalk.red('No examples found for the word')}`);
     }
+}
+
+async function getDetailsForWordOfTheDay() {
+    let randomWord = randomWordList[Math.floor(Math.random() * randomWordList.length)];
+    console.log(`${chalk.blue('Word Of The Day')}:   ${chalk.green(randomWord)}`);
+    await getDetails(randomWord);
+}
+
+async function playGame() {
+    let randomWord = randomWordList[Math.floor(Math.random() * randomWordList.length)];
+    let definitionsList = getDefinitions(randomWord);
+    let synonymsList = getSynonyms(randomWord);
+    let antonymsList = getAntonyms(randomWord);
+    definitionsList = await definitionsList;
+    synonymsList = await synonymsList;
+    antonymsList = await antonymsList;
+    let randomStringArray = [`${chalk.blue('Definition')}:   ${chalk.green(definitionsList[Math.floor(Math.random() * definitionsList.length)])}`, `${chalk.blue('Synonym')}:   ${chalk.green(synonymsList[Math.floor(Math.random() * synonymsList.length)])}`, `${chalk.blue('Antonym')}:   ${chalk.green(antonymsList[Math.floor(Math.random() * antonymsList.length)])}`];
+    console.log(randomStringArray[Math.floor(Math.random() * randomStringArray.length)]);
+    try {
+        let word = '';
+        let correct = false;
+        let choice = 3;
+        do {
+            word = await prompt('Word: ');
+            correct = word.toLowerCase() === randomWord.toLowerCase() || synonymsList.includes(word);
+            if (correct) {
+                break;
+            }
+            choice = await prompt('1. Try Again\t2. Hint\t3. Quit:\n');
+            switch (parseInt(choice)) {
+                case 1:
+                    break;
+                case 2:
+                    randomStringArray[3] = `${chalk.blue('Scrambled Word')}:   ${chalk.green(randomWord.split(' ').map(function (w) {
+                        return w.shuffle();
+                    }).join(' '))}`;
+                    console.log(randomStringArray[Math.floor(Math.random() * randomStringArray.length)]);
+                    break;
+                case 3:
+                    await getDetails(randomWord);
+                    break;
+                default:
+                    throw ('Wrong choice');
+            }
+        } while (parseInt(choice) !== 3);
+        if (correct) {
+            console.log(`${chalk.blue('Word is correct')}`);
+        }
+    } catch (error) {
+        throw error;
+    }
+}
+
+function prompt(promptStatement) {
+    return new Promise((resolve, reject) => {
+        const {
+            stdin,
+            stdout
+        } = process;
+        stdin.resume();
+        stdout.write(promptStatement);
+        stdin.on('data', (data) => {
+            resolve(data.toString().trim());
+        });
+        stdin.on('error', (error) => {
+            reject(error);
+        });
+    });
 }
